@@ -1,6 +1,22 @@
-// ========================================================
-// TOUCH CONTROLLED MINT GAME — CATCH THE FALLING CLOVES
-// ========================================================
+
+
+//countdown timer 
+const StartingMinutes = 2; //value that cannot be changed
+let time = StartingMinutes * 60; //total time in seconds 
+
+const countdownEL = document.getElementById('countdown');
+
+setInterval(updateCountdown, 1000); 
+
+function updateCountdown(){
+    const minutes = Math.floor(time / 60);
+    let seconds = time % 60;
+
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+
+    countdownEL.innerHTML = `${minutes}:${seconds}`;
+    time--;
+}
 
 // Mint GIFs
 let idleGif;
@@ -19,13 +35,11 @@ let mintScale = 1.2;
 
 // Cloves
 let cloves = [];
-let cloveSpeed = 6;
+let cloveSpeed = 10;
 let score = 0;
 let cloveImg;
 
-// ==============================================
-// FACEMESH PARAMETERS
-// ==============================================
+// Facemsh parameters
 let SHOW_VIDEO = true;
 let SHOW_ALL_KEYPOINTS = false;
 let TRACKED_KEYPOINT_INDEX = 1;  // 1 = nose tip
@@ -33,9 +47,7 @@ let CURSOR_SIZE = 30;
 let CURSOR_COLOR = [255, 50, 50];
 let KEYPOINT_SIZE = 3;
 
-// ==============================================
-// GLOBAL VARIABLES
-// ==============================================
+//global variables
 let cam;
 let facemesh;
 let faces = [];
@@ -44,18 +56,14 @@ let cameraReady = false;
 
 let NosePositions;
 
-// ==============================================
-// PRELOAD
-// ==============================================
+// Preload part 
 function preload() {
     idleGif = loadImage("./idle_mint.gif");
     movingGif = loadImage("./moving_mint.gif");
     cloveImg = loadImage("./clove.png");
 }
 
-// ==============================================
-// SETUP
-// ==============================================
+
 function setup() {
     NosePositions = {
         x: 0,
@@ -97,13 +105,10 @@ function setup() {
     spawnClove();
 }
 
-// ==============================================
-// VIDEO READY CALLBACK
-// ==============================================
 function videoReady() {
     cameraReady = true;
     
-    // Configure ML5 FaceMesh AFTER camera is ready
+    // ML5 FaceMesh starts working AFTER camera is ready
     let options = {
         maxFaces: 1,
         refineLandmarks: false,
@@ -115,25 +120,21 @@ function videoReady() {
     facemesh = ml5.faceMesh(options, modelReady);
 }
 
-// ==============================================
-// MODEL READY CALLBACK
-// ==============================================
+// Model ready callback
 function modelReady() {
     console.log('FaceMesh model loaded!');
     // Start detection
     facemesh.detectStart(cam.elt, gotFaces);
 }
 
-// ==============================================
-// GOT FACES CALLBACK
-// ==============================================
+// 
+// Got faces callback
 function gotFaces(results) {
     faces = results;
 }
 
-// ==============================================
-// DRAW LOOP
-// ==============================================
+
+// Draw loop
 function draw() {
     background(0);
 
@@ -182,13 +183,13 @@ function draw() {
         };
     }
 
-    // MINT MOVEMENT
+    // Mint movement 
     let angleToTarget = atan2(targetY - mintY, targetX - mintX);
     mintX = lerp(mintX, targetX, moveSpeed);
     mintRotation = angleToTarget;
     currentGif = dist(mintX, mintY, targetX, targetY) > 5 ? movingGif : idleGif;
 
-    // DRAW MINT BOX
+    // Draw mint box
     push();
     translate(mintX, mintY);
     rotate(mintRotation);
@@ -200,7 +201,7 @@ function draw() {
     for (let i = cloves.length - 1; i >= 0; i--) {
         let c = cloves[i];
         image(cloveImg, c.x, c.y, 60, 60);
-        c.y += cloveSpeed;
+c.y += c.speed;
 
         if (dist(c.x, c.y, mintX, mintY) < 80) {
             score++;
@@ -221,7 +222,7 @@ function draw() {
     textAlign(LEFT, TOP);
     text("Score: " + score, 20, 20);
 
-    // Show camera feed in corner
+    // Show camera in the corner
     if (SHOW_VIDEO && cameraReady) {
         image(cam, 0, 0, width/4, height/4);
     }
@@ -236,19 +237,17 @@ function draw() {
     }
 }
 
-// ========================================================
 // Spawn a falling clove
-// ========================================================
-function spawnClove() {
+function spawnClove(){
+    for (let i = 0; i < 2; i++){
     cloves.push({
         x: random(50, width - 50),
-        y: -40
+        y: -40,
+        speed: random(4,8)
     });
 }
+}
 
-// ========================================================
-// Window Resize
-// ========================================================
 function windowResized() {
     resizeCanvas(640, 480);
 }
